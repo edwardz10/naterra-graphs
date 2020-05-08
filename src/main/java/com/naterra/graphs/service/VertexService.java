@@ -23,7 +23,7 @@ public class VertexService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public VertexDTO addVertexToGraph(UUID externalGraphId, VertexDTO vertex) throws Exception {
+    public VertexDTO addVertex(UUID externalGraphId, VertexDTO vertex) throws Exception {
         GraphEntity graph = graphRepository.findByExternalGraphId(externalGraphId);
 
         if (graph == null) {
@@ -31,6 +31,7 @@ public class VertexService {
         }
 
         vertex.setExternalGraphId(graph.getExternalGraphId());
+        vertex.setExternalId(UUID.randomUUID());
 
         VertexEntity vertexEntity = modelMapper.map(vertex, VertexEntity.class);
 

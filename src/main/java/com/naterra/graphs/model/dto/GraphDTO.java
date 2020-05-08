@@ -1,5 +1,6 @@
 package com.naterra.graphs.model.dto;
 
+import com.naterra.graphs.model.entity.EdgeEntity;
 import com.naterra.graphs.model.entity.VertexEntity;
 import lombok.Data;
 
@@ -16,4 +17,6 @@ public class GraphDTO {
     private UUID externalGraphId;
 
     private List<VertexEntity> vertices;
+
+    private List<EdgeEntity> edges;
 }

@@ -10,5 +10,9 @@ import java.util.UUID;
 @Repository
 public interface VertexRepository extends CrudRepository<VertexEntity, Long> {
 
+    VertexEntity findVertexEntityByExternalId(UUID externalId);
+
+    VertexEntity findVertexEntityByValue(String value);
+
     List<VertexEntity> findAllByExternalGraphId(UUID externalGraphId);
 }

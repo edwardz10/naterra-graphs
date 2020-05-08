@@ -6,20 +6,23 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Vertex")
+@Table(name = "Edge")
 @Data
-public class VertexEntity {
+public class EdgeEntity {
     @Id
     @GeneratedValue
-    @Column(name = "vertexId", nullable = false)
+    @Column(name = "edgeId", nullable = false)
     private Long id;
 
     @Column(name = "externalId", nullable = false)
     private UUID externalId;
 
-    @Column(name = "Value", unique = true, nullable = false)
-    private String value;
-
     @Column(name = "externalGraphId")
     private UUID externalGraphId;
+
+    @Column(name = "fromVertexId")
+    private UUID fromVertexId;
+
+    @Column(name = "toVertexId")
+    private UUID toVertexId;
 }

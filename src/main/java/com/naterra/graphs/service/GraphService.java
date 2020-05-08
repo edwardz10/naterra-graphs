@@ -2,6 +2,7 @@ package com.naterra.graphs.service;
 
 import com.naterra.graphs.model.dto.GraphDTO;
 import com.naterra.graphs.model.entity.GraphEntity;
+import com.naterra.graphs.repository.EdgeRepository;
 import com.naterra.graphs.repository.GraphRepository;
 import com.naterra.graphs.repository.VertexRepository;
 import org.modelmapper.ModelMapper;
@@ -20,6 +21,9 @@ public class GraphService {
 
     @Autowired
     private VertexRepository vertexRepository;
+
+    @Autowired
+    private EdgeRepository edgeRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -45,6 +49,7 @@ public class GraphService {
         GraphEntity graphEntity = graphRepository.findByExternalGraphId(externalGraphId);
         GraphDTO graphDTO = modelMapper.map(graphEntity, GraphDTO.class);
         graphDTO.setVertices(vertexRepository.findAllByExternalGraphId(externalGraphId));
+        graphDTO.setEdges(edgeRepository.findAllByExternalGraphId(externalGraphId));
         return graphDTO;
     }
 
