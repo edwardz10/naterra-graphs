@@ -1,10 +1,7 @@
 package com.naterra.graphs.model.dto;
 
-import com.naterra.graphs.model.entity.EdgeEntity;
-import com.naterra.graphs.model.entity.VertexEntity;
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +13,7 @@ public class GraphDTO {
 
     private UUID externalGraphId;
 
-    private List<VertexEntity> vertices;
+    private List<VertexDTO> vertices;
 
-    private List<EdgeEntity> edges;
+    private List<EdgeDTO> edges;
 }

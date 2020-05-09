@@ -31,7 +31,7 @@ public class EdgeController {
         try {
             return new ResponseEntity<EdgeDTO>(edgeService.addEdge(externalGraphId, values), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

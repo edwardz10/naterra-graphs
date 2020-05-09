@@ -13,7 +13,7 @@ public class EdgeDTO {
     @NotNull
     private UUID externalGraphId;
     @NotNull
-    private UUID fromVertexId;
+    private VertexDTO fromVertex;
     @NotNull
-    private UUID toVertexId;
+    private VertexDTO toVertex;
 }
