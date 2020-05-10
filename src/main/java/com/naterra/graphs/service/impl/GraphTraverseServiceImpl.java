@@ -4,6 +4,7 @@ import com.naterra.graphs.model.dto.EdgeDTO;
 import com.naterra.graphs.model.dto.GraphDTO;
 import com.naterra.graphs.model.dto.VertexDTO;
 import com.naterra.graphs.service.GraphTraverseService;
+import com.naterra.graphs.util.GraphUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -71,14 +72,13 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     private VertexDTO validateAndFindRoot(UUID externalGraphId, UUID rootVertexId) throws Exception {
         if (adjacentMatrixes.get(externalGraphId) == null) {
-            LOGGER.error("Graph {} not found", externalGraphId);
-            throw new Exception("Graph " + externalGraphId + " not found");
+            GraphUtil.logAndThrowException(LOGGER, "Graph %s not found", externalGraphId.toString());
         }
 
         if (adjacentMatrixes.get(externalGraphId).keySet().stream()
                 .noneMatch(vertex -> vertex.getExternalId().equals(rootVertexId))) {
-            LOGGER.error("Graph {} does not contain vertex {}", externalGraphId, rootVertexId);
-            throw new Exception("Graph " + externalGraphId + " does not contain vertex " + rootVertexId);
+            GraphUtil.logAndThrowException(LOGGER, "Graph %s does not contain vertex %s",
+                    externalGraphId.toString(), rootVertexId.toString());
         }
 
         return adjacentMatrixes.get(externalGraphId).keySet()

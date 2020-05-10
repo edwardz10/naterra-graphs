@@ -7,7 +7,10 @@ import com.naterra.graphs.repository.GraphRepository;
 import com.naterra.graphs.repository.VertexRepository;
 import com.naterra.graphs.service.GraphTraverseService;
 import com.naterra.graphs.service.VertexService;
+import com.naterra.graphs.util.GraphUtil;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,8 @@ import java.util.UUID;
 
 @Service
 public class VertexServiceImpl implements VertexService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VertexServiceImpl.class);
 
     @Autowired
     private VertexRepository vertexRepository;
@@ -33,7 +38,7 @@ public class VertexServiceImpl implements VertexService {
         GraphEntity graph = graphRepository.findByExternalGraphId(externalGraphId);
 
         if (graph == null) {
-            throw new Exception("No graph by graph Id " + externalGraphId + " found");
+            GraphUtil.logAndThrowException(LOGGER, "No graph by graph Id %s found", externalGraphId.toString());
         }
 
         VertexEntity vertexEntity = modelMapper.map(vertex, VertexEntity.class);

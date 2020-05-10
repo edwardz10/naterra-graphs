@@ -8,6 +8,7 @@ import com.naterra.graphs.repository.EdgeRepository;
 import com.naterra.graphs.repository.VertexRepository;
 import com.naterra.graphs.service.EdgeService;
 import com.naterra.graphs.service.GraphTraverseService;
+import com.naterra.graphs.util.GraphUtil;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,8 +82,7 @@ public class EdgeServiceImpl implements EdgeService {
         String[] tokens = values.split("\\.\\.");
 
         if (tokens.length != 2) {
-            LOGGER.error("Incorrect vertices: {}", values);
-            throw new Exception("Incorrect vertices: " + values);
+            GraphUtil.logAndThrowException(LOGGER, "Incorrect vertices: %s", values);
         }
 
         VertexEntity vertexFrom = vertexRepository.findVertexEntityByValue(tokens[0]);
@@ -102,30 +102,28 @@ public class EdgeServiceImpl implements EdgeService {
         VertexEntity vertexFrom = vertexRepository.findVertexEntityByExternalId(fromVertexId);
 
         if (vertexFrom == null) {
-            LOGGER.error("No vertex by Id {} found", fromVertexId);
-            throw new Exception("Wrong vertex Id: " + fromVertexId);
+            GraphUtil.logAndThrowException(LOGGER, "No vertex by Id %s found", fromVertexId.toString());
         }
 
         if (!vertexFrom.getExternalGraphId().equals(externalGraphId)) {
-            LOGGER.error("Vertex {} doesn't belong to graph {}", vertexFrom.getExternalGraphId(), externalGraphId);
-            throw new Exception("Vertex " + vertexFrom.getExternalGraphId() + " doesn't belong to graph " + externalGraphId);
+            GraphUtil.logAndThrowException(LOGGER, "Vertex %s doesn't belong to graph %s",
+                    vertexFrom.getExternalGraphId().toString(), externalGraphId.toString());
         }
 
         VertexEntity vertexTo = vertexRepository.findVertexEntityByExternalId(toVertexId);
 
         if (vertexTo == null) {
-            LOGGER.error("No vertex by Id {} found", toVertexId);
-            throw new Exception("Wrong vertex Id: " + toVertexId);
+            GraphUtil.logAndThrowException(LOGGER, "No vertex by Id %s found", toVertexId.toString());
         }
 
         if (!vertexTo.getExternalGraphId().equals(externalGraphId)) {
-            LOGGER.error("Vertex {} doesn't belong to graph {}", vertexTo.getExternalGraphId(), externalGraphId);
-            throw new Exception("Vertex " + vertexTo.getExternalGraphId() + " doesn't belong to graph " + externalGraphId);
+            GraphUtil.logAndThrowException(LOGGER, "Vertex %s doesn't belong to graph %s",
+                    vertexTo.getExternalGraphId().toString(), externalGraphId.toString());
         }
 
         if (!vertexFrom.getExternalGraphId().equals(vertexTo.getExternalGraphId())) {
-            LOGGER.error("Vertices {} and {} belong to different graphs!", fromVertexId, toVertexId);
-            throw new Exception("Vertices " + fromVertexId + " and " + toVertexId + " belong to different graphs!");
+            GraphUtil.logAndThrowException(LOGGER, "Vertices %s and %s belong to different graphs",
+                    fromVertexId.toString(), toVertexId.toString());
         }
     }
 
