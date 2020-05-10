@@ -39,9 +39,19 @@ public class GraphController {
     }
 
     @GetMapping(value = "/{externalGraphId}/traverse", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> traverse(@PathVariable UUID externalGraphId, @RequestParam UUID rootId) {
+    public ResponseEntity<?> traverse(@PathVariable UUID externalGraphId, @RequestParam UUID root) {
         try {
-            return new ResponseEntity<Set<VertexDTO>>(traverseService.traverse(externalGraphId, rootId), HttpStatus.OK);
+            return new ResponseEntity<Set<VertexDTO>>(traverseService.traverse(externalGraphId, root), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/{externalGraphId}/path", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> path(@PathVariable UUID externalGraphId,
+                                  @RequestParam UUID from, @RequestParam UUID to) {
+        try {
+            return new ResponseEntity<Set<VertexDTO>>(traverseService.getPath(externalGraphId, from, to), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

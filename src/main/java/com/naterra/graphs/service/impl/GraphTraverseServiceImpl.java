@@ -1,5 +1,6 @@
 package com.naterra.graphs.service.impl;
 
+import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.dto.EdgeDTO;
 import com.naterra.graphs.model.dto.GraphDTO;
 import com.naterra.graphs.model.dto.VertexDTO;
@@ -46,7 +47,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     }
 
     @Override
-    public Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws Exception {
+    public Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws GraphException {
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, rootVertexId);
         Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
 
@@ -70,13 +71,48 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
         return visited;
     }
 
-    private VertexDTO validateAndFindRoot(UUID externalGraphId, UUID rootVertexId) throws Exception {
+    @Override
+    public Set<VertexDTO> getPath(UUID externalGraphId, UUID fromVertexId, UUID toVertexId) throws GraphException {
+        boolean found = false;
+        VertexDTO rootVertex = validateAndFindRoot(externalGraphId, fromVertexId, toVertexId);
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+
+        Set<VertexDTO> path = new LinkedHashSet<>();
+        Queue<VertexDTO> queue = new LinkedList<>();
+
+        queue.add(rootVertex);
+        path.add(rootVertex);
+
+        while (!queue.isEmpty()) {
+            VertexDTO vertex = queue.poll();
+
+            for (VertexDTO v : matrix.get(vertex)) {
+                if (v.getExternalId().equals(toVertexId)) {
+                    path.add(v);
+                    found = true;
+                    break;
+                }
+
+                if (!path.contains(v)) {
+                    path.add(v);
+                    queue.add(v);
+                }
+            }
+        }
+
+        if (!found) {
+            path.clear();
+        }
+
+        return path;
+    }
+
+    private VertexDTO validateAndFindRoot(UUID externalGraphId, UUID rootVertexId) throws GraphException {
         if (adjacentMatrixes.get(externalGraphId) == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph %s not found", externalGraphId.toString());
         }
 
-        if (adjacentMatrixes.get(externalGraphId).keySet().stream()
-                .noneMatch(vertex -> vertex.getExternalId().equals(rootVertexId))) {
+        if (!isGraphContainVertex(externalGraphId, rootVertexId)) {
             GraphUtil.logAndThrowException(LOGGER, "Graph %s does not contain vertex %s",
                     externalGraphId.toString(), rootVertexId.toString());
         }
@@ -89,4 +125,31 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     }
 
+    private VertexDTO validateAndFindRoot(UUID externalGraphId, UUID fromVertexId, UUID toVertexId) throws GraphException {
+        if (adjacentMatrixes.get(externalGraphId) == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph %s not found", externalGraphId.toString());
+        }
+
+        if (!isGraphContainVertex(externalGraphId, fromVertexId)) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph %s does not contain vertex %s",
+                    externalGraphId.toString(), fromVertexId.toString());
+        }
+
+        if (!isGraphContainVertex(externalGraphId, toVertexId)) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph %s does not contain vertex %s",
+                    externalGraphId.toString(), toVertexId.toString());
+        }
+
+        return adjacentMatrixes.get(externalGraphId).keySet()
+                .stream()
+                .filter(vertex -> vertex.getExternalId().equals(fromVertexId))
+                .findFirst()
+                .get();
+
+    }
+
+    private boolean isGraphContainVertex(UUID externalGraphId, UUID rootVertexId) {
+        return adjacentMatrixes.get(externalGraphId).keySet().stream()
+                .anyMatch(vertex -> vertex.getExternalId().equals(rootVertexId));
+    }
 }

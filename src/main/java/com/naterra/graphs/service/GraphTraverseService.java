@@ -1,5 +1,6 @@
 package com.naterra.graphs.service;
 
+import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.dto.EdgeDTO;
 import com.naterra.graphs.model.dto.GraphDTO;
 import com.naterra.graphs.model.dto.VertexDTO;
@@ -19,5 +20,7 @@ public interface GraphTraverseService {
 
     void removeEdge(EdgeDTO edgeDTO);
 
-    Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws Exception;
+    Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws GraphException;
+
+    Set<VertexDTO> getPath(UUID externalGraphId, UUID fromVertexId, UUID toVertexId) throws GraphException;
 }

@@ -1,5 +1,6 @@
 package com.naterra.graphs.service.impl;
 
+import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.dto.EdgeDTO;
 import com.naterra.graphs.model.dto.VertexDTO;
 import com.naterra.graphs.model.entity.EdgeEntity;
@@ -35,14 +36,14 @@ public class EdgeServiceImpl implements EdgeService {
     private ModelMapper modelMapper;
 
     @Override
-    public EdgeDTO addEdge(UUID externalGraphId, EdgeDTO edgeDTO) throws Exception {
+    public EdgeDTO addEdge(UUID externalGraphId, EdgeDTO edgeDTO) throws GraphException {
         validate(externalGraphId, edgeDTO);
 
         return saveEdge(externalGraphId, edgeDTO);
     }
 
     @Override
-    public EdgeDTO addEdge(UUID externalGraphId, String values) throws Exception {
+    public EdgeDTO addEdge(UUID externalGraphId, String values) throws GraphException {
         EdgeDTO edgeDTO = valuesToEdge(values);
         validate(externalGraphId, edgeDTO);
 
@@ -78,7 +79,7 @@ public class EdgeServiceImpl implements EdgeService {
         return edgeSaved;
     }
 
-    private EdgeDTO valuesToEdge(String values) throws Exception {
+    private EdgeDTO valuesToEdge(String values) throws GraphException {
         String[] tokens = values.split("\\.\\.");
 
         if (tokens.length != 2) {
@@ -95,7 +96,7 @@ public class EdgeServiceImpl implements EdgeService {
         return edgeDTO;
     }
 
-    private void validate(UUID externalGraphId, EdgeDTO edgeDTO) throws Exception {
+    private void validate(UUID externalGraphId, EdgeDTO edgeDTO) throws GraphException {
         UUID fromVertexId = edgeDTO.getFromVertex().getExternalId();
         UUID toVertexId = edgeDTO.getToVertex().getExternalId();
 

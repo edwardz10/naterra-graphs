@@ -1,5 +1,6 @@
 package com.naterra.graphs.service.impl;
 
+import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.dto.VertexDTO;
 import com.naterra.graphs.model.entity.GraphEntity;
 import com.naterra.graphs.model.entity.VertexEntity;
@@ -34,11 +35,11 @@ public class VertexServiceImpl implements VertexService {
     private ModelMapper modelMapper;
 
     @Override
-    public VertexDTO addVertex(UUID externalGraphId, VertexDTO vertex) throws Exception {
+    public VertexDTO addVertex(UUID externalGraphId, VertexDTO vertex) throws GraphException {
         GraphEntity graph = graphRepository.findByExternalGraphId(externalGraphId);
 
         if (graph == null) {
-            GraphUtil.logAndThrowException(LOGGER, "No graph by graph Id %s found", externalGraphId.toString());
+            GraphUtil.logAndThrowException(LOGGER, "No graph by Id %s found", externalGraphId.toString());
         }
 
         VertexEntity vertexEntity = modelMapper.map(vertex, VertexEntity.class);
