@@ -27,16 +27,6 @@ public class VertexServiceImplTest {
     private VertexService vertexService;
 
     @Test
-    public void createGraphWorks() {
-        GraphDTO graphDTO = prepareGraphDTO();
-
-        graphDTO = graphService.createGraph(graphDTO);
-
-        assertThat(graphDTO.getId()).isNotNull();
-        assertThat(graphDTO.getExternalGraphId()).isNotNull();
-    }
-
-    @Test
     public void addVertexWorks() {
         GraphDTO graphDTO = prepareGraphDTO();
         graphDTO = graphService.createGraph(graphDTO);
