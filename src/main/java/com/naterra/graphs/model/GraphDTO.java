@@ -1,8 +1,8 @@
-package com.naterra.graphs.model.dto;
+package com.naterra.graphs.model;
 
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -13,7 +13,7 @@ public class GraphDTO {
 
     private UUID externalGraphId;
 
-    private List<VertexDTO> vertices;
+    private Set<VertexDTO> vertices;
 
-    private List<EdgeDTO> edges;
+    private Set<EdgeDTO> edges;
 }

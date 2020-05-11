@@ -1,4 +1,4 @@
-package com.naterra.graphs.model.dto;
+package com.naterra.graphs.model;
 
 import lombok.Data;
 
@@ -8,7 +8,6 @@ import java.util.UUID;
 @Data
 public class EdgeDTO {
 
-    private Long id;
     private UUID externalId;
     @NotNull
     private UUID externalGraphId;

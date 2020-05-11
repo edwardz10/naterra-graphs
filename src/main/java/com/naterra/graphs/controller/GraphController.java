@@ -1,8 +1,7 @@
 package com.naterra.graphs.controller;
 
-import com.naterra.graphs.model.dto.GraphDTO;
-import com.naterra.graphs.model.dto.VertexDTO;
-import com.naterra.graphs.service.GraphService;
+import com.naterra.graphs.model.GraphDTO;
+import com.naterra.graphs.model.VertexDTO;
 import com.naterra.graphs.service.GraphTraverseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,24 +17,16 @@ import java.util.UUID;
 public class GraphController {
 
     @Autowired
-    private GraphService graphService;
-
-    @Autowired
     private GraphTraverseService traverseService;
-
-    @GetMapping
-    public Iterable<GraphDTO> getAllGraphs() {
-        return graphService.getAllGraphs();
-    }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public GraphDTO createGraph(@RequestBody GraphDTO graph) {
-        return graphService.createGraph(graph);
+        return traverseService.addGraph(graph);
     }
 
     @GetMapping(value = "/{externalGraphId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GraphDTO getGraphByName(@PathVariable UUID externalGraphId) {
-        return graphService.getGraphByExternalId(externalGraphId);
+        return traverseService.getGraphById(externalGraphId);
     }
 
     @GetMapping(value = "/{externalGraphId}/traverse", produces = MediaType.APPLICATION_JSON_VALUE)

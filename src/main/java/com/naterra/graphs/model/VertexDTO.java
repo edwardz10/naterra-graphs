@@ -1,19 +1,18 @@
-package com.naterra.graphs.model.dto;
+package com.naterra.graphs.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode
 @Valid
 public class VertexDTO {
 
-    private Long id;
     private UUID externalId;
     @NotNull
     private String value;
-    @NotNull
-    private UUID externalGraphId;
 }
