@@ -12,9 +12,11 @@ public interface GraphTraverseService {
 
     GraphDTO addGraph(GraphDTO graphDTO);
 
-    void addVertex(UUID externalGraphId, VertexDTO vertexDTO);
+    void addVertex(UUID externalGraphId, VertexDTO vertexDTO) throws GraphException;
 
-    void addEdge(EdgeDTO edgeDTO);
+    void addEdge(EdgeDTO edgeDTO) throws GraphException;
+
+    void addEdge(UUID externalGraphId, String values) throws GraphException;
 
     void removeVertex(VertexDTO vertexDTO);
 

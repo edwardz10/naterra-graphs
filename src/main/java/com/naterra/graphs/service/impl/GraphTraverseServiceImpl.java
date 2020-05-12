@@ -27,15 +27,59 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     }
 
     @Override
-    public void addVertex(UUID externalGraphId, VertexDTO vertexDTO) {
+    public void addVertex(UUID externalGraphId, VertexDTO vertexDTO) throws GraphException {
+        if (adjacentMatrixes.get(externalGraphId) == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist", externalGraphId.toString());
+        }
+
+        if (vertexDTO.getExternalId() == null) {
+            vertexDTO.setExternalId(UUID.randomUUID());
+        }
+
         adjacentMatrixes.get(externalGraphId).put(vertexDTO, new ArrayList<>());
     }
 
     @Override
-    public void addEdge(EdgeDTO edgeDTO) {
+    public void addEdge(EdgeDTO edgeDTO) throws GraphException {
         Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(edgeDTO.getExternalGraphId());
+
+        if (matrix == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist",
+                    edgeDTO.getExternalGraphId().toString());
+        }
+
         matrix.get(edgeDTO.getFromVertex()).add(edgeDTO.getToVertex());
         matrix.get(edgeDTO.getToVertex()).add(edgeDTO.getFromVertex());
+    }
+
+    @Override
+    public void addEdge(UUID externalGraphId, String values) throws GraphException {
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+
+        if (matrix == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist", externalGraphId.toString());
+        }
+
+        String[] tokens = values.split("\\.\\.");
+
+        if (tokens.length != 2) {
+            GraphUtil.logAndThrowException(LOGGER, "Vertices values '%s' are incorrect", values);
+        }
+
+        VertexDTO vertexFrom = GraphUtil.getVertexByValue(matrix, tokens[0]);
+
+        if (vertexFrom == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Vertex with value %s not found", tokens[0]);
+        }
+
+        VertexDTO vertexTo = GraphUtil.getVertexByValue(matrix, tokens[1]);
+
+        if (vertexTo == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Vertex with value %s not found", tokens[1]);
+        }
+
+        matrix.get(vertexFrom).add(vertexTo);
+        matrix.get(vertexTo).add(vertexFrom);
     }
 
     @Override

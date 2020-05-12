@@ -8,7 +8,6 @@ import java.util.UUID;
 @Data
 public class EdgeDTO {
 
-    private UUID externalId;
     @NotNull
     private UUID externalGraphId;
     @NotNull

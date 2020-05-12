@@ -34,7 +34,7 @@ public class GraphController {
         try {
             return new ResponseEntity<Set<VertexDTO>>(traverseService.traverse(externalGraphId, root), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -44,7 +44,7 @@ public class GraphController {
         try {
             return new ResponseEntity<Set<VertexDTO>>(traverseService.getPath(externalGraphId, from, to), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 }
