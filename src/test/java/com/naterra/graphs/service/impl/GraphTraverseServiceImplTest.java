@@ -3,6 +3,7 @@ package com.naterra.graphs.service.impl;
 import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.EdgeDTO;
 import com.naterra.graphs.model.GraphDTO;
+import com.naterra.graphs.model.TraverseDTO;
 import com.naterra.graphs.model.VertexDTO;
 import com.naterra.graphs.service.GraphTraverseService;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,20 @@ class GraphTraverseServiceImplTest {
     private GraphTraverseService graphTraverseService;
 
     @Test
-    void traverseGraphWorks() {
+    public void createGraphOfUnsupportedTypeThrowsExeption() {
+        GraphDTO graphDTO = new GraphDTO();
+        graphDTO.setName("Graph of BigDecimals");
+        graphDTO.setType("java.math.BigDecimal");
+
+        Exception exception = assertThrows(
+                GraphException.class,
+                () -> graphTraverseService.addGraph(graphDTO));
+
+        assertTrue(exception.getMessage().contains("java.lang"));
+    }
+
+    @Test
+    public void traverseGraphWorks() {
         GraphDTO graphDTO = prepareGraphOfStrings();
         graphDTO = graphTraverseService.addGraph(graphDTO);
         final UUID externalGraphId = graphDTO.getExternalGraphId();
@@ -45,12 +59,49 @@ class GraphTraverseServiceImplTest {
         assertThat(graphDTO.getVertices().size()).isEqualTo(5);
         assertThat(graphDTO.getEdges().size()).isEqualTo(6);
 
-        Set<VertexDTO> vertices = graphTraverseService.traverse(externalGraphId, vertexNoel.getExternalId());
+        TraverseDTO traverseDTO = TraverseDTO.builder()
+                .externalGraphId(externalGraphId)
+                .rootVertexId(vertexNoel.getExternalId())
+                .build();
+
+        Set<VertexDTO> vertices = graphTraverseService.traverse(traverseDTO);
         assertThat(vertices.size()).isEqualTo(5);
     }
 
     @Test
-    void getPathWorks() {
+    public void traverseGraphWithFunctionWorks() {
+        GraphDTO graphDTO = prepareGraphOfStrings();
+        graphDTO = graphTraverseService.addGraph(graphDTO);
+        final UUID externalGraphId = graphDTO.getExternalGraphId();
+
+        VertexDTO vertexPapa = addStringVertex(externalGraphId, "'Papa'");
+        VertexDTO vertexMama = addStringVertex(externalGraphId, "'Mama'");
+        VertexDTO vertexDaughter = addStringVertex(externalGraphId, "'Daughter'");
+
+        addEdge(externalGraphId, vertexPapa, vertexMama);
+        addEdge(externalGraphId, vertexMama, vertexDaughter);
+
+        graphDTO = graphTraverseService.getGraphById(externalGraphId);
+
+        assertThat(graphDTO.getVertices().size()).isEqualTo(3);
+        assertThat(graphDTO.getEdges().size()).isEqualTo(2);
+
+        TraverseDTO traverseDTO = TraverseDTO.builder()
+                .externalGraphId(externalGraphId)
+                .rootVertexId(vertexPapa.getExternalId())
+                .func(" + ' loves pizza'")
+                .build();
+
+        Set<VertexDTO> vertices = graphTraverseService.traverse(traverseDTO);
+
+        assertThat(vertices.size()).isEqualTo(3);
+        assertThat(vertices.stream()
+                .filter(vertex -> vertex.getValue().toString().endsWith("loves pizza"))
+                .count()).isEqualTo(3);
+    }
+
+    @Test
+    public void getPathWorks() {
         GraphDTO graphDTO = prepareGraphOfStrings();
         graphDTO = graphTraverseService.addGraph(graphDTO);
         final UUID externalGraphId = graphDTO.getExternalGraphId();

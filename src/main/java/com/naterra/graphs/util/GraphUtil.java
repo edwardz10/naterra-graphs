@@ -25,19 +25,15 @@ public class GraphUtil {
 
     }
 
-    public static boolean isTypeValid(String className) throws GraphException {
+    public static void validateType(String className) throws GraphException {
         if (!className.startsWith("java.lang.")) {
             throw new GraphException("Only classes from the 'java.lang' package are supported");
         }
 
         try {
-            Class<?> myClass = Class.forName(className);
-            Constructor<?> constructor = myClass.getConstructors()[0];
-            constructor.newInstance();
+            Class.forName(className);
         } catch (Exception e) {
             throw new GraphException("Class '" + className + "' not found");
         }
-
-        return true;
     }
 }

@@ -3,6 +3,7 @@ package com.naterra.graphs.service.impl;
 import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.EdgeDTO;
 import com.naterra.graphs.model.GraphDTO;
+import com.naterra.graphs.model.TraverseDTO;
 import com.naterra.graphs.model.VertexDTO;
 import com.naterra.graphs.service.GraphTraverseService;
 import com.naterra.graphs.util.GraphUtil;
@@ -21,10 +22,12 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     private Map<UUID, GraphDTO> graphs = new HashMap<>();
 
     @Override
-    public GraphDTO addGraph(GraphDTO graphDTO) {
+    public GraphDTO addGraph(GraphDTO graphDTO) throws GraphException {
         if (graphDTO.getType() == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph type is not set");
         }
+
+        GraphUtil.validateType(graphDTO.getType());
 
         graphDTO.setExternalGraphId(UUID.randomUUID());
         adjacentMatrixes.put(graphDTO.getExternalGraphId(), new HashMap<>());
@@ -96,16 +99,6 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     }
 
     @Override
-    public void removeVertex(VertexDTO vertexDTO) {
-
-    }
-
-    @Override
-    public void removeEdge(EdgeDTO edgeDTO) {
-
-    }
-
-    @Override
     public GraphDTO getGraphById(UUID externalGraphId) {
         if (adjacentMatrixes.get(externalGraphId) == null) {
             LOGGER.warn("Graph by id {} not found", externalGraphId);
@@ -140,7 +133,9 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     }
 
     @Override
-    public Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws GraphException {
+    public Set<VertexDTO> traverse(TraverseDTO traverseDTO) throws GraphException {
+        UUID externalGraphId = traverseDTO.getExternalGraphId();
+        UUID rootVertexId = traverseDTO.getRootVertexId();
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, rootVertexId);
         Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
 
@@ -159,6 +154,10 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
                     queue.add(v);
                 }
             }
+        }
+
+        if (traverseDTO.getFunc() != null) {
+            visited.forEach(v -> v.setValue(new FunctionCalculatorImpl().calculate(v.getValue(), traverseDTO.getFunc())));
         }
 
         return visited;

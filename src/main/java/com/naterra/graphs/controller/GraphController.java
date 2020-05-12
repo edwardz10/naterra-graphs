@@ -1,6 +1,7 @@
 package com.naterra.graphs.controller;
 
 import com.naterra.graphs.model.GraphDTO;
+import com.naterra.graphs.model.TraverseDTO;
 import com.naterra.graphs.model.VertexDTO;
 import com.naterra.graphs.service.GraphTraverseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,10 @@ public class GraphController {
         return traverseService.getGraphById(externalGraphId);
     }
 
-    @GetMapping(value = "/{externalGraphId}/traverse", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> traverse(@PathVariable UUID externalGraphId, @RequestParam UUID root) {
+    @PostMapping(value = "/traverse", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> traverse(@RequestBody TraverseDTO traverseDTO) {
         try {
-            return new ResponseEntity<Set<VertexDTO>>(traverseService.traverse(externalGraphId, root), HttpStatus.OK);
+            return new ResponseEntity<Set<VertexDTO>>(traverseService.traverse(traverseDTO), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }
