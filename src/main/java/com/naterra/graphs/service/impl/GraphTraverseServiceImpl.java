@@ -17,12 +17,18 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphTraverseServiceImpl.class);
 
-    private Map<UUID, Map<VertexDTO, List<VertexDTO>>> adjacentMatrixes = new HashMap<>();
+    private Map<UUID, Map<VertexDTO<?>, List<VertexDTO<?>>>> adjacentMatrixes = new HashMap<>();
+    private Map<UUID, GraphDTO> graphs = new HashMap<>();
 
     @Override
     public GraphDTO addGraph(GraphDTO graphDTO) {
+        if (graphDTO.getType() == null) {
+            GraphUtil.logAndThrowException(LOGGER, "Graph type is not set");
+        }
+
         graphDTO.setExternalGraphId(UUID.randomUUID());
         adjacentMatrixes.put(graphDTO.getExternalGraphId(), new HashMap<>());
+        graphs.put(graphDTO.getExternalGraphId(), graphDTO);
         return graphDTO;
     }
 
@@ -30,6 +36,13 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     public void addVertex(UUID externalGraphId, VertexDTO vertexDTO) throws GraphException {
         if (adjacentMatrixes.get(externalGraphId) == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist", externalGraphId.toString());
+        }
+
+        String vertexValueType = vertexDTO.getValue().getClass().getName();
+
+        if (!vertexValueType.equals(graphs.get(externalGraphId).getType())) {
+            GraphUtil.logAndThrowException(LOGGER, "Value of type %s not supported in graph %s",
+                    vertexValueType, externalGraphId.toString());
         }
 
         if (vertexDTO.getExternalId() == null) {
@@ -41,7 +54,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     @Override
     public void addEdge(EdgeDTO edgeDTO) throws GraphException {
-        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(edgeDTO.getExternalGraphId());
+        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(edgeDTO.getExternalGraphId());
 
         if (matrix == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist",
@@ -54,7 +67,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     @Override
     public void addEdge(UUID externalGraphId, String values) throws GraphException {
-        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
 
         if (matrix == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist", externalGraphId.toString());
@@ -99,7 +112,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
             return null;
         }
 
-        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
 
         GraphDTO graphDTO = new GraphDTO();
         graphDTO.setExternalGraphId(externalGraphId);
@@ -129,7 +142,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     @Override
     public Set<VertexDTO> traverse(UUID externalGraphId, UUID rootVertexId) throws GraphException {
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, rootVertexId);
-        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
 
         Set<VertexDTO> visited = new LinkedHashSet<>();
         Queue<VertexDTO> queue = new LinkedList<>();
@@ -155,7 +168,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     public Set<VertexDTO> getPath(UUID externalGraphId, UUID fromVertexId, UUID toVertexId) throws GraphException {
         Set<VertexDTO> path = new LinkedHashSet<>();
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, fromVertexId, toVertexId);
-        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
 
         VertexDTO fromVertex = matrix.keySet()
                 .stream()
@@ -163,7 +176,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
                 .findFirst()
                 .get();
 
-        Optional<VertexDTO> toVertex = matrix.get(fromVertex)
+        Optional<VertexDTO<?>> toVertex = matrix.get(fromVertex)
                 .stream()
                 .filter(vertex -> vertex.getExternalId().equals(toVertexId))
                 .findAny();
@@ -264,14 +277,8 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
                 .anyMatch(vertex -> vertex.getExternalId().equals(rootVertexId));
     }
 
-    private boolean containsKey(Map<VertexDTO, VertexDTO> matrix, UUID externalId) {
-        return matrix.keySet()
-                .stream()
-                .anyMatch(vertex -> vertex.getExternalId().equals(externalId));
-    }
-
     private String calculateValueCache(VertexDTO from, VertexDTO to) {
-        String[] values = {from.getValue(), to.getValue()};
+        String[] values = {from.getValue().toString(), to.getValue().toString()};
         Arrays.sort(values);
         return values[0] + values[1];
     }

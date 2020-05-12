@@ -1,5 +1,6 @@
 package com.naterra.graphs.service.impl;
 
+import com.naterra.graphs.exception.GraphException;
 import com.naterra.graphs.model.EdgeDTO;
 import com.naterra.graphs.model.GraphDTO;
 import com.naterra.graphs.model.VertexDTO;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class GraphTraverseServiceImplTest {
@@ -21,15 +23,15 @@ class GraphTraverseServiceImplTest {
 
     @Test
     void traverseGraphWorks() {
-        GraphDTO graphDTO = prepareGraphDTO();
+        GraphDTO graphDTO = prepareGraphOfStrings();
         graphDTO = graphTraverseService.addGraph(graphDTO);
         final UUID externalGraphId = graphDTO.getExternalGraphId();
 
-        VertexDTO vertexLiam = getSavedVertex(externalGraphId, "Liam");
-        VertexDTO vertexNoel = getSavedVertex(externalGraphId, "Noel");
-        VertexDTO vertexBonehead = getSavedVertex(externalGraphId, "Bonehead");
-        VertexDTO vertexGuigsy = getSavedVertex(externalGraphId, "Guigsy");
-        VertexDTO vertexTony = getSavedVertex(externalGraphId, "Tony");
+        VertexDTO vertexLiam = addStringVertex(externalGraphId, "Liam");
+        VertexDTO vertexNoel = addStringVertex(externalGraphId, "Noel");
+        VertexDTO vertexBonehead = addStringVertex(externalGraphId, "Bonehead");
+        VertexDTO vertexGuigsy = addStringVertex(externalGraphId, "Guigsy");
+        VertexDTO vertexTony = addStringVertex(externalGraphId, "Tony");
 
         addEdge(externalGraphId, vertexLiam, vertexNoel);
         addEdge(externalGraphId, vertexLiam, vertexGuigsy);
@@ -48,16 +50,16 @@ class GraphTraverseServiceImplTest {
     }
 
     @Test
-    void getPath() {
-        GraphDTO graphDTO = prepareGraphDTO();
+    void getPathWorks() {
+        GraphDTO graphDTO = prepareGraphOfStrings();
         graphDTO = graphTraverseService.addGraph(graphDTO);
         final UUID externalGraphId = graphDTO.getExternalGraphId();
 
-        VertexDTO vertexTim = getSavedVertex(externalGraphId, "Tim");
-        VertexDTO vertexBrian = getSavedVertex(externalGraphId, "Brian");
-        VertexDTO vertexFreddy = getSavedVertex(externalGraphId, "Freddy");
-        VertexDTO vertexJohn = getSavedVertex(externalGraphId, "John");
-        VertexDTO vertexRoger = getSavedVertex(externalGraphId, "Roger");
+        VertexDTO vertexTim = addStringVertex(externalGraphId, "Tim");
+        VertexDTO vertexBrian = addStringVertex(externalGraphId, "Brian");
+        VertexDTO vertexFreddy = addStringVertex(externalGraphId, "Freddy");
+        VertexDTO vertexJohn = addStringVertex(externalGraphId, "John");
+        VertexDTO vertexRoger = addStringVertex(externalGraphId, "Roger");
 
         addEdge(externalGraphId, vertexTim, vertexBrian);
         addEdge(externalGraphId, vertexTim, vertexJohn);
@@ -88,18 +90,41 @@ class GraphTraverseServiceImplTest {
         assertThat(path4.size()).isEqualTo(3);
     }
 
-    private GraphDTO prepareGraphDTO() {
+    @Test
+    public void addVertexWithWrongValueTypeThrowsException() {
+        GraphDTO graphDTO = prepareGraphOfStrings();
+        graphDTO = graphTraverseService.addGraph(graphDTO);
+        final UUID externalGraphId = graphDTO.getExternalGraphId();
+
+        VertexDTO doubleTypeVertex = getDoubleTypeVertex(externalGraphId, 1.0);
+
+        Exception exception = assertThrows(
+                GraphException.class,
+                () -> graphTraverseService.addVertex(externalGraphId, doubleTypeVertex));
+
+        assertTrue(exception.getMessage().contains("not supported in graph"));
+    }
+
+    private GraphDTO prepareGraphOfStrings() {
         GraphDTO graphDTO = new GraphDTO();
         graphDTO.setName("myGraph");
+        graphDTO.setType("java.lang.String");
         return graphDTO;
     }
 
-    private VertexDTO getSavedVertex(UUID externalGraphId, String value) {
-        VertexDTO vertexDTO = new VertexDTO();
+    private VertexDTO addStringVertex(UUID externalGraphId, String value) {
+        VertexDTO<String> vertexDTO = new VertexDTO<String>();
         vertexDTO.setValue(value);
         vertexDTO.setExternalId(UUID.randomUUID());
-//        return vertexService.addVertex(externalGraphId, vertexDTO);
         graphTraverseService.addVertex(externalGraphId, vertexDTO);
+
+        return vertexDTO;
+    }
+
+    private VertexDTO getDoubleTypeVertex(UUID externalGraphId, Double d) {
+        VertexDTO<Double> vertexDTO = new VertexDTO<Double>();
+        vertexDTO.setValue(d);
+        vertexDTO.setExternalId(UUID.randomUUID());
 
         return vertexDTO;
     }
@@ -110,7 +135,6 @@ class GraphTraverseServiceImplTest {
         edge.setFromVertex(from);
         edge.setToVertex(to);
 
-//        edgeService.addEdge(externalGraphId, edge);
         graphTraverseService.addEdge(edge);
     }
 }
