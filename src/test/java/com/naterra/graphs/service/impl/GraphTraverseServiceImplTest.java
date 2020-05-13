@@ -96,7 +96,7 @@ class GraphTraverseServiceImplTest {
 
         assertThat(vertices.size()).isEqualTo(3);
         assertThat(vertices.stream()
-                .filter(vertex -> vertex.getValue().toString().endsWith("loves pizza"))
+                .filter(vertex -> vertex.getValue().toString().endsWith("loves pizza'"))
                 .count()).isEqualTo(3);
     }
 
