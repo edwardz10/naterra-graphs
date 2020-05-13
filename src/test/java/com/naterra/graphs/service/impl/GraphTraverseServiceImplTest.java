@@ -164,7 +164,7 @@ class GraphTraverseServiceImplTest {
     }
 
     private VertexDTO addStringVertex(UUID externalGraphId, String value) {
-        VertexDTO<String> vertexDTO = new VertexDTO<String>();
+        VertexDTO vertexDTO = new VertexDTO();
         vertexDTO.setValue(value);
         vertexDTO.setExternalId(UUID.randomUUID());
         graphTraverseService.addVertex(externalGraphId, vertexDTO);
@@ -173,7 +173,7 @@ class GraphTraverseServiceImplTest {
     }
 
     private VertexDTO getDoubleTypeVertex(UUID externalGraphId, Double d) {
-        VertexDTO<Double> vertexDTO = new VertexDTO<Double>();
+        VertexDTO vertexDTO = new VertexDTO();
         vertexDTO.setValue(d);
         vertexDTO.setExternalId(UUID.randomUUID());
 

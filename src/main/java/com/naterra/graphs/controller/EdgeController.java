@@ -23,16 +23,6 @@ public class EdgeController {
             traverseService.addEdge(edge);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PostMapping(value = "/{values}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addEdge(@PathVariable UUID externalGraphId, @PathVariable String values) {
-        try {
-            traverseService.addEdge(externalGraphId, values);
-            return new ResponseEntity<>(HttpStatus.CREATED);
-        } catch (Exception e) {
             return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
         }
     }

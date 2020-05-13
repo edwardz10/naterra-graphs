@@ -17,7 +17,7 @@ public class GraphDTO {
     @NotNull
     private String type;
 
-    private Set<VertexDTO<?>> vertices;
+    private Set<VertexDTO> vertices;
 
     private Set<EdgeDTO> edges;
 }

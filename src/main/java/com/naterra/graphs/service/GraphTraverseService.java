@@ -17,8 +17,6 @@ public interface GraphTraverseService {
 
     void addEdge(EdgeDTO edgeDTO) throws GraphException;
 
-    void addEdge(UUID externalGraphId, String values) throws GraphException;
-
     GraphDTO getGraphById(UUID externalGraphId);
 
     Set<VertexDTO> traverse(TraverseDTO traverseDTO) throws GraphException;

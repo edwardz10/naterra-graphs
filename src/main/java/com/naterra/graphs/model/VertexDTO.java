@@ -10,9 +10,9 @@ import java.util.UUID;
 @Data
 @EqualsAndHashCode
 @Valid
-public class VertexDTO<T> {
+public class VertexDTO {
 
     private UUID externalId;
     @NotNull
-    private T value;
+    private Object value;
 }

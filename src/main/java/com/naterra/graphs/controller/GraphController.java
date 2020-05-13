@@ -21,8 +21,12 @@ public class GraphController {
     private GraphTraverseService traverseService;
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GraphDTO createGraph(@RequestBody GraphDTO graph) {
-        return traverseService.addGraph(graph);
+    public ResponseEntity<?> createGraph(@RequestBody GraphDTO graph) {
+        try {
+            return new ResponseEntity<GraphDTO>(traverseService.addGraph(graph), HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(e.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value = "/{externalGraphId}", produces = MediaType.APPLICATION_JSON_VALUE)

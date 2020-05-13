@@ -18,7 +18,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphTraverseServiceImpl.class);
 
-    private Map<UUID, Map<VertexDTO<?>, List<VertexDTO<?>>>> adjacentMatrixes = new HashMap<>();
+    private Map<UUID, Map<VertexDTO, List<VertexDTO>>> adjacentMatrixes = new HashMap<>();
     private Map<UUID, GraphDTO> graphs = new HashMap<>();
 
     @Override
@@ -57,7 +57,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
 
     @Override
     public void addEdge(EdgeDTO edgeDTO) throws GraphException {
-        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(edgeDTO.getExternalGraphId());
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(edgeDTO.getExternalGraphId());
 
         if (matrix == null) {
             GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist",
@@ -69,43 +69,13 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     }
 
     @Override
-    public void addEdge(UUID externalGraphId, String values) throws GraphException {
-        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
-
-        if (matrix == null) {
-            GraphUtil.logAndThrowException(LOGGER, "Graph with id %s doesn't exist", externalGraphId.toString());
-        }
-
-        String[] tokens = values.split("\\.\\.");
-
-        if (tokens.length != 2) {
-            GraphUtil.logAndThrowException(LOGGER, "Vertices values '%s' are incorrect", values);
-        }
-
-        VertexDTO vertexFrom = GraphUtil.getVertexByValue(matrix, tokens[0]);
-
-        if (vertexFrom == null) {
-            GraphUtil.logAndThrowException(LOGGER, "Vertex with value %s not found", tokens[0]);
-        }
-
-        VertexDTO vertexTo = GraphUtil.getVertexByValue(matrix, tokens[1]);
-
-        if (vertexTo == null) {
-            GraphUtil.logAndThrowException(LOGGER, "Vertex with value %s not found", tokens[1]);
-        }
-
-        matrix.get(vertexFrom).add(vertexTo);
-        matrix.get(vertexTo).add(vertexFrom);
-    }
-
-    @Override
     public GraphDTO getGraphById(UUID externalGraphId) {
         if (adjacentMatrixes.get(externalGraphId) == null) {
             LOGGER.warn("Graph by id {} not found", externalGraphId);
             return null;
         }
 
-        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
 
         GraphDTO graphDTO = new GraphDTO();
         graphDTO.setExternalGraphId(externalGraphId);
@@ -115,7 +85,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
         final Set<String> edgeValues = new HashSet<>();
 
         matrix.forEach((key, value) -> value.forEach(vertex -> {
-            String cacheValue = calculateValueCache(key, vertex);
+            String cacheValue = GraphUtil.calculateValueCache(key, vertex);
 
             if (!edgeValues.contains(cacheValue)) {
                 edgeValues.add(cacheValue);
@@ -137,7 +107,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
         UUID externalGraphId = traverseDTO.getExternalGraphId();
         UUID rootVertexId = traverseDTO.getRootVertexId();
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, rootVertexId);
-        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
 
         Set<VertexDTO> visited = new LinkedHashSet<>();
         Queue<VertexDTO> queue = new LinkedList<>();
@@ -157,7 +127,17 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
         }
 
         if (traverseDTO.getFunc() != null) {
-            visited.forEach(v -> v.setValue(new FunctionCalculatorImpl().calculate(v.getValue(), traverseDTO.getFunc())));
+            visited.forEach(v -> {
+                Object updatedValue = new FunctionCalculatorImpl().calculate(v.getValue(), traverseDTO.getFunc());
+                v.setValue(updatedValue);
+                updateValueInMatrix(matrix, v.getExternalId(), updatedValue);
+//                VertexDTO vertexInMatrix = matrix.keySet()
+//                        .stream()
+//                        .filter(vertex -> vertex.getExternalId().equals(v.getExternalId()))
+//                        .findFirst()
+//                        .get();
+//                vertexInMatrix.setValue(updatedValue);
+            });
         }
 
         return visited;
@@ -167,7 +147,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
     public Set<VertexDTO> getPath(UUID externalGraphId, UUID fromVertexId, UUID toVertexId) throws GraphException {
         Set<VertexDTO> path = new LinkedHashSet<>();
         VertexDTO rootVertex = validateAndFindRoot(externalGraphId, fromVertexId, toVertexId);
-        Map<VertexDTO<?>, List<VertexDTO<?>>> matrix = adjacentMatrixes.get(externalGraphId);
+        Map<VertexDTO, List<VertexDTO>> matrix = adjacentMatrixes.get(externalGraphId);
 
         VertexDTO fromVertex = matrix.keySet()
                 .stream()
@@ -175,7 +155,7 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
                 .findFirst()
                 .get();
 
-        Optional<VertexDTO<?>> toVertex = matrix.get(fromVertex)
+        Optional<VertexDTO> toVertex = matrix.get(fromVertex)
                 .stream()
                 .filter(vertex -> vertex.getExternalId().equals(toVertexId))
                 .findAny();
@@ -276,9 +256,19 @@ public class GraphTraverseServiceImpl implements GraphTraverseService {
                 .anyMatch(vertex -> vertex.getExternalId().equals(rootVertexId));
     }
 
-    private String calculateValueCache(VertexDTO from, VertexDTO to) {
-        String[] values = {from.getValue().toString(), to.getValue().toString()};
-        Arrays.sort(values);
-        return values[0] + values[1];
+    private void updateValueInMatrix(Map<VertexDTO, List<VertexDTO>> matrix,
+                                     UUID externalId,
+                                     Object updatedValue) {
+        for (Map.Entry<VertexDTO, List<VertexDTO>> entry : matrix.entrySet()) {
+            if (entry.getKey().getExternalId().equals(externalId)) {
+                entry.getKey().setValue(updatedValue);
+            }
+
+            for (VertexDTO v : entry.getValue()) {
+                if (v.getExternalId().equals(externalId)) {
+                    v.setValue(updatedValue);
+                }
+            }
+        }
     }
 }
