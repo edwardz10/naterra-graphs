@@ -1,15 +1,15 @@
-#naterra-graphs
+# naterra-graphs
 
 <b>Naterra Graphs</b> is a Spring Boot application that provides basic operations for creating an undirected graph.
 No data persistence level is available at the moment.
 
 ## REST API
 <b>Naterra Graphs</b> supports REST API for the following operations:
-  - Create a graph (provide name, type as a Java class (i.e. "java.lang.String)). Only types of "java.lang" package are supported;
-  - Create a vertex (provide UUID of a graph, value, which type corresponds to the graphs's one);
-  - Create an edge between vertices (provide UUID of a graph, vertex "from" and vertex "to");
-  - Traverse a graph (provide UUID of a graph, UUID of a vertex to start from, and a function in JS format to apply to vertices' values (optional));
-  - Get a path between vertices (provide UUID of a graph, UUID of the "from" vertex, UUID of the "to" vertex);
+  - <b>Create a graph</b> (provide name, type as a Java class (i.e. "java.lang.String)). Only types of "java.lang" package are supported;
+  - <b>Create a vertex</b> (provide UUID of a graph, value, which type corresponds to the graphs's one);
+  - <b>Create an edge</b> between vertices (provide UUID of a graph, vertex "from" and vertex "to");
+  - <b>Traverse a graph</b> (provide UUID of a graph, UUID of a vertex to start from, and a function in JS format to apply to vertices' values (optional));
+  - <b>Get a path</b> between vertices (provide UUID of a graph, UUID of the "from" vertex, UUID of the "to" vertex);
   
 ## Tests
 For testings purposes, in <b>Naterra Graphs</b> there are:
@@ -17,8 +17,8 @@ For testings purposes, in <b>Naterra Graphs</b> there are:
   - a Postman collection;
   
 ## How to run:
-`mvn clean package`
-`mvn spring-boot:run`
+`mvn clean package`<p>
+`mvn spring-boot:run`<p>
 , and the web app will be available at http://localhost:8080
 
 ## Future improvements:
