@@ -1,0 +1,231 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Naterra Graphs",
+		"_postman_id": "ff6a35c0-1c11-015b-8616-4accdd8c3698",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all graphs",
+			"request": {
+				"url": "https://app-docker.vqa32.uc1.pspr.co/security/oauth/token\n",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "internalAPIClient",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "gTD3zT4Iilm",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create graph",
+			"request": {
+				"url": "http://localhost:8080/graphs",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"myGraph\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get graph by id",
+			"request": {
+				"url": "http://localhost:8080/graphs/6d3ce628-872a-4582-9807-43172fdcca6f",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"myGraph\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add vertex",
+			"request": {
+				"url": "http://localhost:8080/graphs/e6a2cce2-bfb3-4397-bf67-fc1c9108f7a9/vertices",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"value\": \"Maria\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add edge",
+			"request": {
+				"url": "http://localhost:8080/graphs/6cc48865-9152-4abb-b8ee-fa92998e89dd/edges",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"fromVertexId\": \"18299708-2455-4907-b94e-630243ec607d\",\n\t\"toVertexId\": \"8f02b8e0-6314-48c9-a7e9-e5ed5f95a7d4\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Traverse graph by root id",
+			"request": {
+				"url": "http://localhost:8080/graphs/traverse",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"externalGraphId\": \"93a166f5-fec1-43b5-89a2-a623943b94ab\",\n\t\"rootVertexId\": \"56471ee1-f0df-4106-9f96-496832019d02\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Traverse graph by root id and function",
+			"request": {
+				"url": "http://localhost:8080/graphs/traverse",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"externalGraphId\": \"93a166f5-fec1-43b5-89a2-a623943b94ab\",\n\t\"rootVertexId\": \"56471ee1-f0df-4106-9f96-496832019d02\",\n\t\"func\": \" + 'loves pizza'\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get path between 2 vertices",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/graphs/50040f76-f85d-42ee-ba7b-868a37ac137c/traverse?rootId=f2761ba0-666e-4d85-92a0-b12b413ae875",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graphs",
+						"50040f76-f85d-42ee-ba7b-868a37ac137c",
+						"traverse"
+					],
+					"query": [
+						{
+							"key": "rootId",
+							"value": "f2761ba0-666e-4d85-92a0-b12b413ae875",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"myGraph\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Create graph copy",
+			"request": {
+				"url": "http://localhost:8080/graphs",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"myGraph\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
